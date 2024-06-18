@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import sys, os
-from corsheaders.defaults import default_headers
+# from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,13 +22,18 @@ sys.path.append(os.path.join(BASE_DIR, ".."))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+
+ALLOWED_HOSTS = ['*']
 SECRET_KEY = '00000000000000000000000000000000000000000000000000'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['localhost']
 
 
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+if not DEBUG:
+    ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
+    SECRET_KEY = os.environ['SECRET_KEY']
+
+# print("ALLOWED_HOSTS", ALLOWED_HOSTS, DEBUG)
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,8 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
-    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -122,6 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 REST_FRAMEWORK = {
@@ -131,6 +137,25 @@ REST_FRAMEWORK = {
 }
 
 
-CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_CREDENTIALS = True
 
+
+LOGGING = {
+   'version': 1,
+   'disable_existing_loggers': False,
+   'handlers': {
+      'file': {
+         'level': 'DEBUG',
+         'class': 'logging.FileHandler',
+         'filename': '/tmp/debug.log',
+      },
+   },
+   'loggers': {
+      'django': {
+         'handlers': ['file'],
+         'level': 'DEBUG',
+         'propagate': True,
+      },
+   },
+}

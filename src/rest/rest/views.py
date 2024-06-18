@@ -11,10 +11,29 @@ db = MongoClient(mongo_uri)['test_db']
 class TodoListView(APIView):
 
     def get(self, request):
-        # Implement this method - return all todo items from db instance above.
-        return Response({}, status=status.HTTP_200_OK)
+        # Query all todo items from the database
+        try:
+            todos = db.todo_items.find()
+            # Convert the todos to a list
+            todos_list = [todo['description'] for todo in todos]
+            # print(todos_list)
+            # Return the todos as the response
+            return Response(todos_list, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Return an error response
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def post(self, request):
-        # Implement this method - accept a todo item in a mongo collection, persist it using db instance above.
-        return Response({}, status=status.HTTP_200_OK)
+        try:
+            # Accept a todo item from the request data
+            todo_item = request.data
+            # print(todo_item)
+            # Persist the todo item using the db instance
+            db.todo_items.insert_one(todo_item)
+            # Return a success response
+            return Response(status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # Return an error response
+            print(e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
