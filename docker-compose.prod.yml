@@ -1,0 +1,30 @@
+name: todo-prod
+services:
+  backend:
+    image: ${API_IMAGE}
+    expose:
+      - "8000"
+    depends_on:
+      - mongo
+    env_file:
+      - .env.local
+
+  app:
+    image: ${FRONTEND_IMAGE}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:4.0.28-xenial
+    restart: always
+    expose:
+      - "27017"
+    volumes:
+      - mongodb:/data/db
+
+volumes:
+  mongodb:
+
+    

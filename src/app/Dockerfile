@@ -1,7 +1,9 @@
-FROM node:20.14-alpine3.20 as build
+FROM node:20.14-alpine3.20 as dev
 
 WORKDIR /app
 COPY package.json /app/
+
+FROM dev as build
 RUN yarn install --production=true
 COPY . .
 RUN yarn build

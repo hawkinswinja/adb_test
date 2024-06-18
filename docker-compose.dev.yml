@@ -1,0 +1,38 @@
+name: todo-dev
+# ADBREW_CODEBASE_PATH=${PWD} 
+
+services:
+  backend:
+    build: ./src/rest
+    container_name: api
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    expose:
+      - "8000"
+    depends_on:
+      - mongo
+    volumes:
+      - ${ADBREW_CODEBASE_PATH}/tmp:/tmp
+      - ${ADBREW_CODEBASE_PATH}/src/rest:/app
+
+  app:
+    build: 
+      context: ./src/app
+      target: dev
+    container_name: app
+    command: sh -c "yarn install && yarn start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${ADBREW_CODEBASE_PATH}/src/app:/app
+
+  mongo:
+    image: mongo:4.0.28-xenial
+    restart: always
+    expose:
+      - "27017"
+    volumes:
+      - mongodb:/data/db
+    command: /usr/bin/mongod --bind_ip 0.0.0.0
+
+volumes:
+  mongodb: 
